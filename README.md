@@ -1,0 +1,2 @@
+# CNN for Text Classifications
+This is an implementation of [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/abs/1408.5882). The datasets could be downloaded at course website [Neural Networks for NLP]http://phontron.com/data/topicclass-v1.tar.gz
