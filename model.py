@@ -4,10 +4,12 @@ import torch.nn.functional as F
 
 class Net(nn.Module):
 
-    def __init__(self, vocab, embed_size, out_channels, window_size, n_classes):
+    def __init__(self, vocab, embed_size, out_channels, window_size, n_classes, device):
         super(Net, self).__init__()
         self.embedding = nn.Embedding(*vocab.vectors.size())
         self.embedding.weight.data.copy_(vocab.vectors)
+        if device == 'cuda':
+            self.embedding.cuda()
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
         self.fc = nn.Linear(out_channels, n_classes)
         self.out_channels = out_channels

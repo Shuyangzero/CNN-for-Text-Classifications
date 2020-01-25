@@ -113,7 +113,7 @@ val_loader = DataLoader(val_dataset, batch_size=len(val_X),
 if args.load_model:
     net = torch.load(args.load_path)
 else:
-    net = Net(TEXT.vocab, embed_size, out_channels, window_size, len(tag2i))
+    net = Net(TEXT.vocab, embed_size, out_channels, window_size, len(tag2i), device)
 net.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(net.parameters())
@@ -134,11 +134,10 @@ for epoch in range(epochs):
         optimizer.step()
         running_loss += loss.item()
         val_loss, val_accuracy = test(val_loader)
-        test_loss, test_accuracy = test(test_loader)
+        _, test_accuracy = test(test_loader)
         if i % 1000 == 999:
             writer.add_scalar('training loss', running_loss /
                               1000, epoch * len(train_loader) + i)
-            writer.add_scalar('testing loss', test_loss, epoch * len(train_loader) + i)
             writer.add_scalar('testing accuracy', test_accuracy, epoch * len(train_loader) + i)
             writer.add_scalar('validation loss', val_loss, epoch * len(train_loader) + i)
             writer.add_scalar('validation accuracy', val_accuracy, epoch * len(train_loader) + i)
