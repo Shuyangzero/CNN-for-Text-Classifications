@@ -25,7 +25,7 @@ def parse_arguments():
     parser.add_argument('window_size', dest='window_size', type=int, default=4)
     parser.add_argument('batch_size', dest='batch_size', type=int, default=32)
     parser.add_argument('epochs', dest='epochs', type=int, default=1)
-    parser.add_argument('load_model', dest='load_model', type=int, default=1)
+    parser.add_argument('load_model', dest='load_model', type=int, default=0)
     parser.add_argument('load_path', dest='load_path', type=str, default='model.pt')
     parser.add_argument('save_path', dest='save_path', type=str, default='model.pt')
 
