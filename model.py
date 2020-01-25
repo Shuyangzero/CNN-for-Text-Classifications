@@ -11,6 +11,7 @@ class Net(nn.Module):
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
         self.fc = nn.Linear(out_channels, n_classes)
         self.out_channels = out_channels
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, x, mask):
         x = self.embedding(x)
@@ -22,6 +23,7 @@ class Net(nn.Module):
         expand_mask = mask.expand(-1, self.out_channels, -1)
         x[expand_mask] = float('-inf')
         x, _ = x.max(axis=2)
+        x = self.dropout(x)
         x = self.fc(x)
         x = F.relu(x)
         return x

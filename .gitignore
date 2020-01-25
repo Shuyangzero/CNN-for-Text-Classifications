@@ -2,3 +2,6 @@ data/
 .DS_Store
 .vector_cache/
 .vscode/
+__pycache__/
+log_data/
+*.ipynb
