@@ -22,9 +22,12 @@ def parse_arguments():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('embed_size', dest='embed_size', type=int, default=50)
     parser.add_argument('out_channels', dest='out_channels', type=int, default=4)
-    parser.add_argument('window_size', dest='window_size', type=int, default=50)
+    parser.add_argument('window_size', dest='window_size', type=int, default=4)
     parser.add_argument('batch_size', dest='batch_size', type=int, default=32)
-    parser.add_argument('epochs', dest='batch_size', type=int, default=1)
+    parser.add_argument('epochs', dest='epochs', type=int, default=1)
+    parser.add_argument('load_model', dest='load_model', type=int, default=1)
+    parser.add_argument('load_path', dest='load_path', type=str, default='model.pt')
+    parser.add_argument('save_path', dest='save_path', type=str, default='model.pt')
 
 def read_dataset(filename, is_Test=False):
     sentences, tags = [], []
@@ -50,6 +53,7 @@ def collate_fn(batch):
     return pad_sentences, torch.tensor(tags), mask
 
 def test(test_loader):
+    net.eval()
     criterion = nn.CrossEntropyLoss()
     running_loss = 0.0
     correct = 0.0
@@ -60,6 +64,7 @@ def test(test_loader):
         loss = criterion(outputs, tags)
         running_loss += loss.item()
         correct += torch.argmax(outputs,dim=1) == tags
+    net.train()
     return running_loss / len(test_loader), corret / len(test_loader)
 
 # user_specified parameters
@@ -96,7 +101,10 @@ test_loader = DataLoader(test_dataset, batch_size=len(test_X),
 valid_loader = DataLoader(valid_dataset, batch_size=len(valid_X),
                           shuffle=False, collate_fn=collate_fn)
 # build CNN model
-net = Net(TEXT.vocab, embed_size, out_channels, window_size, len(tag2i))
+if args.load_model:
+    net = torch.load(args.load_path)
+else:
+    net = Net(TEXT.vocab, embed_size, out_channels, window_size, len(tag2i))
 net.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(net.parameters())
@@ -127,3 +135,5 @@ for epoch in range(epochs):
             writer.add_scalar('validation accuracy', valid_accuracy, epoch * len(train_loader) + i)
             running_loss = 0.0
         i += 1
+
+torch.save(net, args.save_path)
