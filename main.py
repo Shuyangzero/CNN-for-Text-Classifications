@@ -102,12 +102,12 @@ TEXT.build_vocab(train_X + val_X, vectors=vectors)
 # build dataset and  dataloader
 train_dataset = TextDataset(train_X, train_Y, TEXT.vocab.stoi)
 test_dataset = TextDataset(test_X, test_Y, TEXT.vocab.stoi)
-valid_dataset = TextDataset(valid_X, valid_Y, TEXT.vocab.stoi)
+val_dataset = TextDataset(val_X, val_Y, TEXT.vocab.stoi)
 train_loader = DataLoader(train_dataset, batch_size=batch_size,
                           shuffle=True, collate_fn=collate_fn)
 test_loader = DataLoader(test_dataset, batch_size=len(test_X),
                           shuffle=False, collate_fn=collate_fn)
-valid_loader = DataLoader(valid_dataset, batch_size=len(valid_X),
+val_loader = DataLoader(val_dataset, batch_size=len(val_X),
                           shuffle=False, collate_fn=collate_fn)
 # build CNN model
 if args.load_model:
@@ -133,15 +133,15 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
-        valid_loss, valid_accuracy = test(valid_loader)
+        val_loss, val_accuracy = test(val_loader)
         test_loss, test_accuracy = test(test_loader)
         if i % 1000 == 999:
             writer.add_scalar('training loss', running_loss /
                               1000, epoch * len(train_loader) + i)
             writer.add_scalar('testing loss', test_loss, epoch * len(train_loader) + i)
             writer.add_scalar('testing accuracy', test_accuracy, epoch * len(train_loader) + i)
-            writer.add_scalar('validation loss', valid_loss, epoch * len(train_loader) + i)
-            writer.add_scalar('validation accuracy', valid_accuracy, epoch * len(train_loader) + i)
+            writer.add_scalar('validation loss', val_loss, epoch * len(train_loader) + i)
+            writer.add_scalar('validation accuracy', val_accuracy, epoch * len(train_loader) + i)
             running_loss = 0.0
         i += 1
 
