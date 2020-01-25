@@ -21,7 +21,7 @@ class Net(nn.Module):
         self.dropout = nn.Dropout(0.2)
         self.device = device
     def forward(self, x, mask):
-        x = 
+        x = x.to(self.device)
         print("x",x.is_cuda)
         x = self.embedding(x)
         x = x.unsqueeze_(1)
