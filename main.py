@@ -74,7 +74,7 @@ def test(test_loader):
         running_loss += loss.item()
         correct += torch.argmax(outputs,dim=1) == tags
     net.train()
-    return running_loss / len(test_loader), corret / len(test_loader)
+    return running_loss / len(test_loader), correct / len(test_loader)
 
 # user_specified parameters
 args = parse_arguments()

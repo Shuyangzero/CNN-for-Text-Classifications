@@ -1,13 +1,15 @@
 from torch import nn
 import torch.nn.functional as F
-
+import torch
 
 class Net(nn.Module):
 
     def __init__(self, vocab, embed_size, out_channels, window_size, n_classes, device):
         super(Net, self).__init__()
         self.embedding = nn.Embedding(*vocab.vectors.size())
-        self.embedding.weight.data.copy_(vocab.vectors)
+        vectors = torch.tensor(vocab.vectors)
+        vectors.to(device)
+        self.embedding.weight.data.copy_(device)
         if device == 'cuda':
             self.embedding.cuda()
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
