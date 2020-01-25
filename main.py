@@ -45,6 +45,8 @@ def read_dataset(filename, is_Test=False):
             sentences.append(words)
             if not is_Test:
                 tags.append(tag2i[tag])
+            else:
+                tags.append(0)
     return sentences, tags
 
 # customize the data loader by padding the sequences and calculations the mask.
@@ -87,7 +89,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # load data
 train_X, train_Y = read_dataset("./data/topicclass_train.txt")
 val_X, val_Y = read_dataset("./data/topicclass_valid.txt")
-test_X, _ = read_dataset("./data/topicclass_test.txt", is_Test=True)
+test_X, test_Y = read_dataset("./data/topicclass_test.txt", is_Test=True)
 
 # build vocab for word embeddings
 cache = '.vector_cache'
