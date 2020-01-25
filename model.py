@@ -8,7 +8,7 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.embedding = nn.Embedding(*vocab.vectors.size())
         self.embedding.weight.data.copy_(vocab.vectors)
-        self.embeddings.weight.requires_grad = False
+        self.embedding.weight.requires_grad = False
         #self.embedding = self.embedding.to(device)
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
         self.fc = nn.Linear(out_channels, n_classes)
