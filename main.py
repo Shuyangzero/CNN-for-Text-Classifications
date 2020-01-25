@@ -18,10 +18,14 @@ from torch.utils.tensorboard import SummaryWriter
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 # read user specified arguments
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--embed_size', dest='embed_size', type=int, default=50)
-    parser.add_argument('--out_channels', dest='out_channels', type=int, default=4)
+    parser.add_argument('--embed_size', dest='embed_size',
+                        type=int, default=50)
+    parser.add_argument(
+        '--out_channels', dest='out_channels', type=int, default=4)
     parser.add_argument('--window_size', dest='window_size',
                         type=int, default=4)
     parser.add_argument('--batch_size', dest='batch_size',
@@ -35,6 +39,8 @@ def parse_arguments():
     return parser.parse_args()
 
 # read the dataset from the file
+
+
 def read_dataset(filename, is_Test=False):
     sentences, tags = [], []
     nlp = en_core_web_sm.load()
@@ -50,6 +56,8 @@ def read_dataset(filename, is_Test=False):
     return sentences, tags
 
 # customize the data loader by padding the sequences and calculations the mask.
+
+
 def collate_fn(batch):
     batch.sort(key=lambda x: len(x[0]), reverse=True)
     sentences, tags = zip(*batch)
@@ -61,6 +69,8 @@ def collate_fn(batch):
     return pad_sentences, torch.tensor(tags), mask
 
 # switch the model to evaluation mode to get accuracy and loss on the test or validation datasets.
+
+
 def test(test_loader):
     net.eval()
     criterion = nn.CrossEntropyLoss()
@@ -73,9 +83,10 @@ def test(test_loader):
         outputs = net(pad_sentences, mask)
         loss = criterion(outputs, tags)
         running_loss += loss.item()
-        correct += sum(torch.argmax(outputs,dim=1) == tags)
+        correct += sum(torch.argmax(outputs, dim=1) == tags)
     net.train()
     return running_loss / len(test_loader), correct / len(test_loader)
+
 
 # user_specified parameters
 args = parse_arguments()
@@ -107,17 +118,17 @@ val_dataset = TextDataset(val_X, val_Y, TEXT.vocab.stoi)
 train_loader = DataLoader(train_dataset, batch_size=batch_size,
                           shuffle=True, collate_fn=collate_fn)
 test_loader = DataLoader(test_dataset, batch_size=len(test_X),
-                          shuffle=False, collate_fn=collate_fn)
+                         shuffle=False, collate_fn=collate_fn)
 val_loader = DataLoader(val_dataset, batch_size=len(val_X),
-                          shuffle=False, collate_fn=collate_fn)
+                        shuffle=False, collate_fn=collate_fn)
 # build CNN model
 if args.load_model:
     net = torch.load(args.load_path)
 else:
-    net = Net(TEXT.vocab, embed_size, out_channels, window_size, len(tag2i), device)
+    net = Net(TEXT.vocab, embed_size, out_channels,
+              window_size, len(tag2i), device)
 net = net.to(device)
 criterion = nn.CrossEntropyLoss()
-criterion = criterion.cuda()
 optimizer = torch.optim.Adam(net.parameters())
 
 # train the model
@@ -127,25 +138,26 @@ for epoch in range(epochs):
     i = 0
     for batch in tqdm(train_loader):
         pad_sentences, tags, mask = batch
-        pad_sentences = pad_sentences.cuda()
+        pad_sentences = pad_sentences.to(device)
         tags = tags.to(device)
         mask = mask.to(device)
         optimizer.zero_grad()
         outputs = net(pad_sentences, mask)
-        print(outputs.is_cuda, tags.is_cuda)
         loss = criterion(outputs, tags)
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
         val_loss, val_accuracy = test(val_loader)
         _, test_accuracy = test(test_loader)
-        print(i)
         if i % 1000 == 999:
             writer.add_scalar('training loss', running_loss /
                               1000, epoch * len(train_loader) + i)
-            writer.add_scalar('testing accuracy', test_accuracy, epoch * len(train_loader) + i)
-            writer.add_scalar('validation loss', val_loss, epoch * len(train_loader) + i)
-            writer.add_scalar('validation accuracy', val_accuracy, epoch * len(train_loader) + i)
+            writer.add_scalar('testing accuracy', test_accuracy,
+                              epoch * len(train_loader) + i)
+            writer.add_scalar('validation loss', val_loss,
+                              epoch * len(train_loader) + i)
+            writer.add_scalar('validation accuracy',
+                              val_accuracy, epoch * len(train_loader) + i)
             running_loss = 0.0
         i += 1
 torch.save(net, args.save_path)

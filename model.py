@@ -7,17 +7,15 @@ class Net(nn.Module):
     def __init__(self, vocab, embed_size, out_channels, window_size, n_classes, device):
         super(Net, self).__init__()
         self.embedding = nn.Embedding(*vocab.vectors.size())
-        self.embedding = self.embedding.to(device)
-        vectors = vocab.vectors.clone().detach().requires_grad_(False)
-        vectors = vectors.to(device)
-        self.embedding.weight.data.copy_(vectors)
+        self.embedding.weight.data.copy_(vocab.vectors)
+        self.embeddings.weight.requires_grad = False
+        #self.embedding = self.embedding.to(device)
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
         self.fc = nn.Linear(out_channels, n_classes)
         self.out_channels = out_channels
         self.dropout = nn.Dropout(0.2)
         self.device = device
     def forward(self, x, mask):
-        print("x",x.is_cuda)
         x = self.embedding(x)
         x = x.unsqueeze_(1)
         x = self.conv(x)
