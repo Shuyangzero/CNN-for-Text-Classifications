@@ -19,8 +19,8 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
 def parse_arguments():
-	parser = argparse.ArgumentParser()
-	parser.add_argument('embed_size', dest='embed_size', type=int, default=50)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('embed_size', dest='embed_size', type=int, default=50)
     parser.add_argument('out_channels', dest='out_channels', type=int, default=4)
     parser.add_argument('window_size', dest='window_size', type=int, default=4)
     parser.add_argument('batch_size', dest='batch_size', type=int, default=32)
