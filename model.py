@@ -11,7 +11,7 @@ class Net(nn.Module):
             self.embedding = self.embedding.cuda()
         vectors = vocab.vectors.clone().detach().requires_grad_(False)
         vectors = vectors.to(device)
-        print(vectors.is_cuda)
+        print("vector",vectors.is_cuda)
         self.embedding.weight.data.copy_(vectors)
         print("weight",self.embedding.weight.is_cuda)
         print("embedding",self.embedding)
@@ -34,4 +34,5 @@ class Net(nn.Module):
         x = self.dropout(x)
         x = self.fc(x)
         x = F.relu(x)
+        print("complete")
         return x
