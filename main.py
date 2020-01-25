@@ -28,7 +28,7 @@ def parse_arguments():
     parser.add_argument('load_model', dest='load_model', type=int, default=0)
     parser.add_argument('load_path', dest='load_path', type=str, default='model.pt')
     parser.add_argument('save_path', dest='save_path', type=str, default='model.pt')
-	return parser.parse_args()
+    return parser.parse_args()
 
 # read the dataset from the file
 def read_dataset(filename, is_Test=False):
