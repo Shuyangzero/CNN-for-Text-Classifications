@@ -72,7 +72,7 @@ def test(test_loader):
         outputs = net(pad_sentences, mask)
         loss = criterion(outputs, tags)
         running_loss += loss.item()
-        correct += torch.argmax(outputs,dim=1) == tags
+        correct += sum(torch.argmax(outputs,dim=1) == tags)
     net.train()
     return running_loss / len(test_loader), correct / len(test_loader)
 
