@@ -114,8 +114,9 @@ if args.load_model:
     net = torch.load(args.load_path)
 else:
     net = Net(TEXT.vocab, embed_size, out_channels, window_size, len(tag2i), device)
-net.to(device)
+net = net.to(device)
 criterion = nn.CrossEntropyLoss()
+criterion = criterion.cuda()
 optimizer = torch.optim.Adam(net.parameters())
 
 # train the model
