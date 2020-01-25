@@ -20,14 +20,18 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 # read user specified arguments
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('embed_size', dest='embed_size', type=int, default=50)
-    parser.add_argument('out_channels', dest='out_channels', type=int, default=4)
-    parser.add_argument('window_size', dest='window_size', type=int, default=4)
-    parser.add_argument('batch_size', dest='batch_size', type=int, default=32)
-    parser.add_argument('epochs', dest='epochs', type=int, default=1)
-    parser.add_argument('load_model', dest='load_model', type=int, default=0)
-    parser.add_argument('load_path', dest='load_path', type=str, default='model.pt')
-    parser.add_argument('save_path', dest='save_path', type=str, default='model.pt')
+    parser.add_argument('--embed_size', dest='embed_size', type=int, default=50)
+    parser.add_argument('--out_channels', dest='out_channels', type=int, default=4)
+    parser.add_argument('--window_size', dest='window_size',
+                        type=int, default=4)
+    parser.add_argument('--batch_size', dest='batch_size',
+                        type=int, default=32)
+    parser.add_argument('--epochs', dest='epochs', type=int, default=1)
+    parser.add_argument('--load_model', dest='load_model', type=int, default=0)
+    parser.add_argument('--load_path', dest='load_path',
+                        type=str, default='model.pt')
+    parser.add_argument('--save_path', dest='save_path',
+                        type=str, default='model.pt')
     return parser.parse_args()
 
 # read the dataset from the file
