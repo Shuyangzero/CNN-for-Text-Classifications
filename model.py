@@ -9,7 +9,7 @@ class Net(nn.Module):
         self.embedding = nn.Embedding(*vocab.vectors.size())
         vectors = torch.tensor(vocab.vectors)
         vectors.to(device)
-        self.embedding.weight.data.copy_(device)
+        self.embedding.weight.data.copy_(vectors)
         if device == 'cuda':
             self.embedding.cuda()
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
