@@ -17,7 +17,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
-
+# read user specified arguments
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('embed_size', dest='embed_size', type=int, default=50)
@@ -28,7 +28,9 @@ def parse_arguments():
     parser.add_argument('load_model', dest='load_model', type=int, default=0)
     parser.add_argument('load_path', dest='load_path', type=str, default='model.pt')
     parser.add_argument('save_path', dest='save_path', type=str, default='model.pt')
+	return parser.parse_args()
 
+# read the dataset from the file
 def read_dataset(filename, is_Test=False):
     sentences, tags = [], []
     nlp = en_core_web_sm.load()
@@ -41,7 +43,7 @@ def read_dataset(filename, is_Test=False):
                 tags.append(tag2i[tag])
     return sentences, tags
 
-
+# customize the data loader by padding the sequences and calculations the mask.
 def collate_fn(batch):
     batch.sort(key=lambda x: len(x[0]), reverse=True)
     sentences, tags = zip(*batch)
@@ -52,6 +54,7 @@ def collate_fn(batch):
     mask = pad_sequence(mask, batch_first=True, padding_value=True)
     return pad_sentences, torch.tensor(tags), mask
 
+# switch the model to evaluation mode to get accuracy and loss on the test or validation datasets.
 def test(test_loader):
     net.eval()
     criterion = nn.CrossEntropyLoss()
