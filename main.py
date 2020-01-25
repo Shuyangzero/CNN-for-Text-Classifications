@@ -136,6 +136,7 @@ for epoch in range(epochs):
         running_loss += loss.item()
         val_loss, val_accuracy = test(val_loader)
         _, test_accuracy = test(test_loader)
+        print(i)
         if i % 1000 == 999:
             writer.add_scalar('training loss', running_loss /
                               1000, epoch * len(train_loader) + i)
@@ -144,5 +145,4 @@ for epoch in range(epochs):
             writer.add_scalar('validation accuracy', val_accuracy, epoch * len(train_loader) + i)
             running_loss = 0.0
         i += 1
-
 torch.save(net, args.save_path)

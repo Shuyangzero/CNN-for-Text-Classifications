@@ -19,8 +19,9 @@ class Net(nn.Module):
         self.fc = nn.Linear(out_channels, n_classes)
         self.out_channels = out_channels
         self.dropout = nn.Dropout(0.2)
-
+        self.device = device
     def forward(self, x, mask):
+        x = 
         print("x",x.is_cuda)
         x = self.embedding(x)
         x = x.unsqueeze_(1)
