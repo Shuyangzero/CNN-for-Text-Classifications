@@ -8,7 +8,7 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.embedding = nn.Embedding(*vocab.vectors.size())
         if device == 'cuda':
-            self.embedding.cuda()
+            self.embedding = self.embedding.cuda()
         vectors = vocab.vectors.clone().detach().requires_grad_(False)
         vectors.to(device)
         self.embedding.weight.data.copy_(vectors)
