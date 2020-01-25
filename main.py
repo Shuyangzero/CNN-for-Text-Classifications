@@ -130,6 +130,7 @@ for epoch in range(epochs):
         mask = mask.cuda()
         optimizer.zero_grad()
         outputs = net(pad_sentences, mask)
+        print(outputs.is_cuda, tags.is_cuda)
         loss = criterion(outputs, tags)
         loss.backward()
         optimizer.step()
