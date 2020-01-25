@@ -67,8 +67,9 @@ def test(test_loader):
     running_loss = 0.0
     correct = 0.0
     for pad_sentences, tags, mask in test_loader:
-        pad_sentences.to(device)
-        tags.to(device)
+        pad_sentences = pad_sentences.to(device)
+        tags = tags.to(device)
+        mask = mask.to(device)
         outputs = net(pad_sentences, mask)
         loss = criterion(outputs, tags)
         running_loss += loss.item()
@@ -127,8 +128,8 @@ for epoch in range(epochs):
     for batch in tqdm(train_loader):
         pad_sentences, tags, mask = batch
         pad_sentences = pad_sentences.cuda()
-        tags = tags.cuda()
-        mask = mask.cuda()
+        tags = tags.to(device)
+        mask = mask.to(device)
         optimizer.zero_grad()
         outputs = net(pad_sentences, mask)
         print(outputs.is_cuda, tags.is_cuda)
