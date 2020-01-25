@@ -35,5 +35,4 @@ class Net(nn.Module):
         x = self.dropout(x)
         x = self.fc(x)
         x = F.relu(x)
-        print("complete")
         return x

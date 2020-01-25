@@ -125,9 +125,9 @@ for epoch in range(epochs):
     i = 0
     for batch in tqdm(train_loader):
         pad_sentences, tags, mask = batch
-        pad_sentences = pad_sentences.to(device)
-        tags = tags.to(device)
-        mask = mask.to(device)
+        pad_sentences = pad_sentences.cuda()
+        tags = tags.cuda()
+        mask = mask.cuda()
         optimizer.zero_grad()
         outputs = net(pad_sentences, mask)
         loss = criterion(outputs, tags)
