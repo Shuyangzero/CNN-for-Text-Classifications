@@ -10,8 +10,9 @@ class Net(nn.Module):
         if device == 'cuda':
             self.embedding = self.embedding.cuda()
         vectors = vocab.vectors.clone().detach().requires_grad_(False)
-        vectors.to(device)
+        vectors = vectors.to(device)
         self.embedding.weight.data.copy_(vectors)
+
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
         self.fc = nn.Linear(out_channels, n_classes)
         self.out_channels = out_channels
