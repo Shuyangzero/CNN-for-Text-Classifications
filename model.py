@@ -13,15 +13,15 @@ class Net(nn.Module):
         vectors = vectors.to(device)
         print(vectors.is_cuda)
         self.embedding.weight.data.copy_(vectors)
-        print(self.embedding.weight.is_cuda)
-        print(self.embedding)
+        print("weight",self.embedding.weight.is_cuda)
+        print("embedding",self.embedding)
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
         self.fc = nn.Linear(out_channels, n_classes)
         self.out_channels = out_channels
         self.dropout = nn.Dropout(0.2)
 
     def forward(self, x, mask):
-        print(x.is_cuda)
+        print("x",x.is_cuda)
         x = self.embedding(x)
         x = x.unsqueeze_(1)
         x = self.conv(x)
