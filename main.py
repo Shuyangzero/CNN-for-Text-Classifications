@@ -127,7 +127,7 @@ for epoch in range(epochs):
         pad_sentences, tags, mask = batch
         pad_sentences = pad_sentences.to(device)
         tags = tags.to(device)
-        mask.to(device)
+        mask = mask.to(device)
         optimizer.zero_grad()
         outputs = net(pad_sentences, mask)
         loss = criterion(outputs, tags)
