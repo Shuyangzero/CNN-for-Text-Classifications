@@ -5,3 +5,4 @@ data/
 __pycache__/
 log_data/
 *.ipynb
+*.pt

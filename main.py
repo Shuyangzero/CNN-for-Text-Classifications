@@ -30,7 +30,7 @@ def parse_arguments():
                         type=int, default=4)
     parser.add_argument('--batch_size', dest='batch_size',
                         type=int, default=32)
-    parser.add_argument('--epochs', dest='epochs', type=int, default=1)
+    parser.add_argument('--epochs', dest='epochs', type=int, default=20)
     parser.add_argument('--load_model', dest='load_model', type=int, default=0)
     parser.add_argument('--load_path', dest='load_path',
                         type=str, default='model.pt')
@@ -71,12 +71,12 @@ def collate_fn(batch):
 # switch the model to evaluation mode to get accuracy and loss on the test or validation datasets.
 
 
-def test(test_loader):
+def test(loader):
     net.eval()
     criterion = nn.CrossEntropyLoss()
     running_loss = 0.0
     correct = 0.0
-    for pad_sentences, tags, mask in test_loader:
+    for pad_sentences, tags, mask in loader:
         pad_sentences = pad_sentences.to(device)
         tags = tags.to(device)
         mask = mask.to(device)
@@ -85,7 +85,7 @@ def test(test_loader):
         running_loss += loss.item()
         correct += sum(torch.argmax(outputs, dim=1) == tags)
     net.train()
-    return running_loss / len(test_loader), correct / len(test_loader)
+    return running_loss / len(loader.dataset), correct / len(loader.dataset)
 
 
 # user_specified parameters
@@ -101,7 +101,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # load data
 train_X, train_Y = read_dataset("./data/topicclass_train.txt")
 val_X, val_Y = read_dataset("./data/topicclass_valid.txt")
-test_X, test_Y = read_dataset("./data/topicclass_test.txt", is_Test=True)
+#test_X, test_Y = read_dataset("./data/topicclass_test.txt", is_Test=True)
 
 # build vocab for word embeddings
 cache = '.vector_cache'
@@ -113,12 +113,12 @@ TEXT.build_vocab(train_X + val_X, vectors=vectors)
 
 # build dataset and  dataloader
 train_dataset = TextDataset(train_X, train_Y, TEXT.vocab.stoi)
-test_dataset = TextDataset(test_X, test_Y, TEXT.vocab.stoi)
+#test_dataset = TextDataset(test_X, test_Y, TEXT.vocab.stoi)
 val_dataset = TextDataset(val_X, val_Y, TEXT.vocab.stoi)
 train_loader = DataLoader(train_dataset, batch_size=batch_size,
                           shuffle=True, collate_fn=collate_fn)
-test_loader = DataLoader(test_dataset, batch_size=len(test_X),
-                         shuffle=False, collate_fn=collate_fn)
+#test_loader = DataLoader(test_dataset, batch_size=len(test_X),
+#                         shuffle=False, collate_fn=collate_fn)
 val_loader = DataLoader(val_dataset, batch_size=len(val_X),
                         shuffle=False, collate_fn=collate_fn)
 # build CNN model
@@ -148,16 +148,13 @@ for epoch in range(epochs):
         optimizer.step()
         running_loss += loss.item()
         val_loss, val_accuracy = test(val_loader)
-        _, test_accuracy = test(test_loader)
         if i % 1000 == 999:
             writer.add_scalar('training loss', running_loss /
-                              1000, epoch * len(train_loader) + i)
-            writer.add_scalar('testing accuracy', test_accuracy,
-                              epoch * len(train_loader) + i)
+                              1000, epoch * len(train_loader.dataset) + i)
             writer.add_scalar('validation loss', val_loss,
-                              epoch * len(train_loader) + i)
+                              epoch * len(train_loader.dataset) + i)
             writer.add_scalar('validation accuracy',
-                              val_accuracy, epoch * len(train_loader) + i)
+                              val_accuracy, epoch * len(train_loader.dataset) + i)
             running_loss = 0.0
         i += 1
 torch.save(net, args.save_path)
