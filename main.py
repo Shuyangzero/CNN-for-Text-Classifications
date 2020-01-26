@@ -36,7 +36,8 @@ def parse_arguments():
                         type=str, default='model.pt')
     parser.add_argument('--save_path', dest='save_path',
                         type=str, default='model.pt')
-
+    parser.add_argument('--lr', dest='lr',
+                        type=float, default=1e-3)
     return parser.parse_args()
 
 # read the dataset from the file
@@ -84,8 +85,6 @@ def test(loader):
         outputs = net(pad_sentences, mask)
         loss = criterion(outputs, tags)
         running_loss += loss.item()
-        results = torch.argmax(outputs, dim=1)
-        print(results.size())
         correct += sum(torch.argmax(outputs, dim=1) == tags)
     net.train()
     return running_loss / len(loader.dataset), correct / len(loader.dataset)
@@ -150,10 +149,10 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
-        val_loss, val_accuracy = test(val_loader)
         if i % 1000 == 999:
+            val_loss, val_accuracy = test(val_loader)
             writer.add_scalar('training loss', running_loss / 1000, i)
-            writer.add_scalar('validation loss', val_loss,i)
+            writer.add_scalar('validation loss', val_loss, i)
             writer.add_scalar('validation accuracy', val_accuracy, i)
             running_loss = 0.0
         i += 1
