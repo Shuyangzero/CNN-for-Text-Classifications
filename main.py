@@ -84,6 +84,8 @@ def test(loader):
         outputs = net(pad_sentences, mask)
         loss = criterion(outputs, tags)
         running_loss += loss.item()
+        results = torch.argmax(outputs, dim=1)
+        print(results.size())
         correct += sum(torch.argmax(outputs, dim=1) == tags)
     net.train()
     return running_loss / len(loader.dataset), correct / len(loader.dataset)
