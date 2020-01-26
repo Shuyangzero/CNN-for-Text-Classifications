@@ -27,7 +27,7 @@ def parse_arguments():
     parser.add_argument(
         '--out_channels', dest='out_channels', type=int, default=4)
     parser.add_argument('--window_size', dest='window_size',
-                        type=int, default=5)
+                        type=int, default=4)
     parser.add_argument('--batch_size', dest='batch_size',
                         type=int, default=50)
     parser.add_argument('--epochs', dest='epochs', type=int, default=5)
@@ -148,6 +148,9 @@ for epoch in range(epochs):
         loss = criterion(outputs, tags)
         loss.backward()
         optimizer.step()
+        w_norm = net.fc.weight.data.norm(p=2)
+        if w_norm >= 3:
+            net.fc.weight.data = net.fc.weight.data / w_norm * 3
         running_loss += loss.item()
         if i % 1000 == 999:
             val_loss, val_accuracy = test(val_loader)

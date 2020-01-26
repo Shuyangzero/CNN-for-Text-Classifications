@@ -27,5 +27,4 @@ class Net(nn.Module):
         x, _ = x.max(axis=2)
         x = self.dropout(x)
         x = self.fc(x)
-        x = F.relu(x)
         return x
