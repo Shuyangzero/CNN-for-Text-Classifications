@@ -135,8 +135,8 @@ optimizer = torch.optim.Adam(net.parameters())
 # train the model
 running_loss = 0.0
 writer = SummaryWriter('./log_data')
+i = 0
 for epoch in range(epochs):
-    i = 0
     for batch in tqdm(train_loader):
         pad_sentences, tags, mask = batch
         pad_sentences = pad_sentences.to(device)
@@ -150,12 +150,9 @@ for epoch in range(epochs):
         running_loss += loss.item()
         val_loss, val_accuracy = test(val_loader)
         if i % 1000 == 999:
-            writer.add_scalar('training loss', running_loss /
-                              1000, epoch * len(train_loader.dataset) + i)
-            writer.add_scalar('validation loss', val_loss,
-                              epoch * len(train_loader.dataset) + i)
-            writer.add_scalar('validation accuracy',
-                              val_accuracy, epoch * len(train_loader.dataset) + i)
+            writer.add_scalar('training loss', running_loss / 1000, i)
+            writer.add_scalar('validation loss', val_loss,i)
+            writer.add_scalar('validation accuracy', val_accuracy, i)
             running_loss = 0.0
         i += 1
     torch.save(net, args.save_path)
