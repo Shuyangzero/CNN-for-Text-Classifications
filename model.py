@@ -2,7 +2,6 @@ from torch import nn
 import torch.nn.functional as F
 import torch
 
-
 class Net(nn.Module):
 
     def __init__(self, vocab, embed_size, out_channels, window_size, n_classes):
@@ -11,7 +10,9 @@ class Net(nn.Module):
         self.embedding.weight.data.copy_(vocab.vectors)
         self.embedding.weight.requires_grad = False
         self.conv = nn.Conv2d(1, out_channels, (window_size, embed_size))
+        nn.init.xavier_uniform(self.conv.weight)
         self.fc = nn.Linear(out_channels, n_classes)
+        nn.init.xavier_uniform(self.fc.weight)
         self.out_channels = out_channels
         self.dropout = nn.Dropout(0.5)
 

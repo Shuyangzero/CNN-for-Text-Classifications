@@ -61,7 +61,6 @@ def read_dataset(filename, is_Test=False):
 
 
 def collate_fn(batch):
-    batch.sort(key=lambda x: len(x[0]), reverse=True)
     sentences, tags = zip(*batch)
     pad_sentences = pad_sequence(sentences, batch_first=True, padding_value=1)
     # the padding positions have values as True in mask.
@@ -129,6 +128,7 @@ if args.load_model:
 else:
     net = Net(TEXT.vocab, embed_size, out_channels,
               window_size, len(tag2i))
+
 net = net.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(net.parameters())
