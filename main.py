@@ -27,15 +27,16 @@ def parse_arguments():
     parser.add_argument(
         '--out_channels', dest='out_channels', type=int, default=4)
     parser.add_argument('--window_size', dest='window_size',
-                        type=int, default=4)
+                        type=int, default=5)
     parser.add_argument('--batch_size', dest='batch_size',
-                        type=int, default=32)
-    parser.add_argument('--epochs', dest='epochs', type=int, default=20)
+                        type=int, default=50)
+    parser.add_argument('--epochs', dest='epochs', type=int, default=5)
     parser.add_argument('--load_model', dest='load_model', type=int, default=0)
     parser.add_argument('--load_path', dest='load_path',
                         type=str, default='model.pt')
     parser.add_argument('--save_path', dest='save_path',
                         type=str, default='model.pt')
+
     return parser.parse_args()
 
 # read the dataset from the file
@@ -126,7 +127,7 @@ if args.load_model:
     net = torch.load(args.load_path)
 else:
     net = Net(TEXT.vocab, embed_size, out_channels,
-              window_size, len(tag2i), device)
+              window_size, len(tag2i))
 net = net.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(net.parameters())
@@ -157,4 +158,4 @@ for epoch in range(epochs):
                               val_accuracy, epoch * len(train_loader.dataset) + i)
             running_loss = 0.0
         i += 1
-torch.save(net, args.save_path)
+    torch.save(net, args.save_path)
