@@ -68,15 +68,15 @@ def test(loader):
     net.eval()
     criterion = nn.CrossEntropyLoss()
     running_loss = 0.0
-    correct = 0.0
-    for pad_sentences, tags in loader:
-        pad_sentences = pad_sentences.to(device)
-        tags = tags.to(device)
-        outputs = net(pad_sentences)
-        loss = criterion(outputs, tags)
-        running_loss += loss.item()
-        correct += sum(torch.argmax(outputs, dim=1) == tags)
-    net.train()
+    with torch.no_grad():
+        for pad_sentences, tags in loader:
+            pad_sentences = pad_sentences.to(device)
+            tags = tags.to(device)
+            outputs = net(pad_sentences)
+            loss = criterion(outputs, tags)
+            running_loss += loss.item()
+            print(outputs[:10],tags[:10])
+            correct += sum(torch.argmax(outputs, dim=1) == tags)
     return running_loss / len(loader.dataset), correct / len(loader.dataset)
 
 
@@ -125,6 +125,7 @@ optimizer = torch.optim.Adam(net.parameters())
 running_loss = 0.0
 writer = SummaryWriter('./log_data')
 i = 0
+best_val_accuracy = 0
 for epoch in range(epochs):
     for batch in tqdm(train_loader):
         pad_sentences, tags = batch
