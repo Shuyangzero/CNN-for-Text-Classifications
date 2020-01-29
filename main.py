@@ -24,10 +24,6 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--embed_size', dest='embed_size',
                         type=int, default=50)
-    parser.add_argument(
-        '--out_channels', dest='out_channels', type=int, default=4)
-    parser.add_argument('--window_size', dest='window_size',
-                        type=int, default=4)
     parser.add_argument('--batch_size', dest='batch_size',
                         type=int, default=50)
     parser.add_argument('--epochs', dest='epochs', type=int, default=5)
@@ -57,17 +53,13 @@ def read_dataset(filename, is_Test=False):
                 tags.append(0)
     return sentences, tags
 
-# customize the data loader by padding the sequences and calculations the mask.
+# customize the data loader by padding the sequences.
 
 
 def collate_fn(batch):
     sentences, tags = zip(*batch)
     pad_sentences = pad_sequence(sentences, batch_first=True, padding_value=1)
-    # the padding positions have values as True in mask.
-    mask = [torch.tensor([False] * (len(t) - window_size + 1))
-            for t in sentences]
-    mask = pad_sequence(mask, batch_first=True, padding_value=True)
-    return pad_sentences, torch.tensor(tags), mask
+    return pad_sentences, torch.tensor(tags)
 
 # switch the model to evaluation mode to get accuracy and loss on the test or validation datasets.
 
@@ -77,11 +69,10 @@ def test(loader):
     criterion = nn.CrossEntropyLoss()
     running_loss = 0.0
     correct = 0.0
-    for pad_sentences, tags, mask in loader:
+    for pad_sentences, tags in loader:
         pad_sentences = pad_sentences.to(device)
         tags = tags.to(device)
-        mask = mask.to(device)
-        outputs = net(pad_sentences, mask)
+        outputs = net(pad_sentences)
         loss = criterion(outputs, tags)
         running_loss += loss.item()
         correct += sum(torch.argmax(outputs, dim=1) == tags)
@@ -92,8 +83,6 @@ def test(loader):
 # user_specified parameters
 args = parse_arguments()
 embed_size = args.embed_size
-out_channels = args.out_channels
-window_size = args.window_size
 batch_size = args.batch_size
 epochs = args.epochs
 tag2i = defaultdict(lambda: len(tag2i))
@@ -126,8 +115,7 @@ val_loader = DataLoader(val_dataset, batch_size=len(val_X),
 if args.load_model:
     net = torch.load(args.load_path)
 else:
-    net = Net(TEXT.vocab, embed_size, out_channels,
-              window_size, len(tag2i))
+    net = Net(TEXT.vocab, embed_size, len(tag2i))
 
 net = net.to(device)
 criterion = nn.CrossEntropyLoss()
@@ -139,12 +127,11 @@ writer = SummaryWriter('./log_data')
 i = 0
 for epoch in range(epochs):
     for batch in tqdm(train_loader):
-        pad_sentences, tags, mask = batch
+        pad_sentences, tags = batch
         pad_sentences = pad_sentences.to(device)
         tags = tags.to(device)
-        mask = mask.to(device)
         optimizer.zero_grad()
-        outputs = net(pad_sentences, mask)
+        outputs = net(pad_sentences)
         loss = criterion(outputs, tags)
         loss.backward()
         optimizer.step()
