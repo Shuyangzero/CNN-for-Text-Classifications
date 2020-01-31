@@ -14,7 +14,7 @@ from dataset import TextDataset
 from torch.utils.data import DataLoader
 from model import Net
 from torch.utils.tensorboard import SummaryWriter
-
+from datetime import datetime
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 # read user specified arguments
@@ -23,7 +23,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--embed_size', dest='embed_size',
-                        type=int, default=50)
+                        type=int, default=300)
     parser.add_argument('--batch_size', dest='batch_size',
                         type=int, default=50)
     parser.add_argument('--epochs', dest='epochs', type=int, default=5)
@@ -65,9 +65,10 @@ def collate_fn(batch):
 
 
 def test(loader):
-    net.eval()
     criterion = nn.CrossEntropyLoss()
     running_loss = 0.0
+    correct = 0.0
+    net.eval()
     with torch.no_grad():
         for pad_sentences, tags in loader:
             pad_sentences = pad_sentences.to(device)
@@ -75,8 +76,9 @@ def test(loader):
             outputs = net(pad_sentences)
             loss = criterion(outputs, tags)
             running_loss += loss.item()
-            print(outputs[:10],tags[:10])
+            print(torch.argmax(outputs, dim=1)[:20], tags[:20])
             correct += sum(torch.argmax(outputs, dim=1) == tags)
+    net.train()
     return running_loss / len(loader.dataset), correct / len(loader.dataset)
 
 
@@ -119,11 +121,14 @@ else:
 
 net = net.to(device)
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(net.parameters())
+optimizer = torch.optim.Adadelta(net.parameters())
+#optimizer = torch.optim.Adam(net.parameters())
 
 # train the model
 running_loss = 0.0
-writer = SummaryWriter('./log_data')
+now = datetime.now()
+writer = SummaryWriter(
+    './log_data/{}/'.format(now.strftime("%d-%m-%Y-%H-%M-%S")))
 i = 0
 best_val_accuracy = 0
 for epoch in range(epochs):
@@ -139,11 +144,12 @@ for epoch in range(epochs):
         w_norm = net.fc.weight.data.norm(p=2)
         if w_norm >= 3:
             net.fc.weight.data = net.fc.weight.data / w_norm * 3
-        running_loss += loss.item()
+        running_loss += loss.item() 
         if i % 1000 == 999:
             val_loss, val_accuracy = test(val_loader)
             writer.add_scalar('training loss', running_loss / 1000, i)
             writer.add_scalar('validation loss', val_loss, i)
+            print("validation accuracy is {}".format(val_accuracy))
             writer.add_scalar('validation accuracy', val_accuracy, i)
             running_loss = 0.0
         i += 1
