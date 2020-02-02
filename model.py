@@ -2,12 +2,13 @@ from torch import nn
 import torch.nn.functional as F
 import torch
 
+
 class Net(nn.Module):
 
-    def __init__(self, vocab, embed_size, n_classes):
+    def __init__(self, embedding_matrix, embed_size, n_classes):
         super(Net, self).__init__()
-        self.embedding = nn.Embedding(*vocab.vectors.size())
-        self.embedding.weight.data.copy_(vocab.vectors)
+        self.embedding = nn.Embedding(*embedding_matrix.size())
+        self.embedding.weight.data.copy_(embedding_matrix)
         self.embedding.weight.requires_grad = True
         self.conv1 = nn.Conv1d(embed_size, 100, 3)
         self.conv2 = nn.Conv1d(embed_size, 100, 4)
@@ -21,7 +22,7 @@ class Net(nn.Module):
 
     def forward(self, x):
         x = self.embedding(x)
-        x = x.permute(0,2,1)
+        x = x.permute(0, 2, 1)
         x1, x2, x3 = self.conv1(x), self.conv2(x), self.conv3(x)
         # after x.squeeze(3), x's dim = (batch_size, out_channels, n_features)
         x1, _ = x1.max(axis=2)
